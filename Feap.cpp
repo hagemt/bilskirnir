@@ -10,8 +10,13 @@
 
 int main(int argc, char** argv) {
 	Feap<int> f;
-	while (--argc) { f.insert(atoi(argv[argc])); }
-	while (!f.empty()) { std::cout << f.find_min() << " "; f.delete_min(); }
+	while (--argc) {
+		f.insert(atoi(argv[argc]));
+	}
+	while (!f.empty()) {
+		std::cout << f.top() << " ";
+		f.pop();
+	}
 	std::cout << std::endl;
 	return 0;
 }
