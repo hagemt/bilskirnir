@@ -1,0 +1,2 @@
+Flashcard % How do these work?
+Karuta % A {\bf Japanese} card game.
