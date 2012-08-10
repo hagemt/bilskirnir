@@ -14,7 +14,8 @@
 #define GREY false
 #include <cassert>
 
-template<class T> class Feap {
+template <typename T>
+class Feap {
 public:
 	/* Type definitions */
 	typedef unsigned int size_type;
@@ -25,66 +26,54 @@ protected:
 	struct TreeNode {
 		/* TreeNode representation */
 		size_type degree; color_type mark; T value;
-		TreeNode *left, *right, *child, *parent;
 		/* A TreeNode has left and right siblings, which are circularly linked */
+		TreeNode *left, *right, *child, *parent;
 
-		/* Default constructor implicit FIXME make explicit? */
-		TreeNode(TreeNode *n = NULL, const T& t = T(), size_type d = 1, color_type c = GREY) :
-			degree(d), mark(c), value(t), left(this), right(this), child(NULL), parent(n) { };
+    /* Default constructor is implicit FIXME make explicit? */
+    TreeNode(TreeNode *n = NULL, const T& t = T(), size_type d = 1, color_type c = GREY) :
+      degree(d), mark(c), value(t), left(this), right(this), child(NULL), parent(n) { };
+    TreeNode(const TreeNode&);
+    virtual ~TreeNode();
+  };
 
-    /* Copy constructor dives into children */
-		TreeNode(const TreeNode& t) :
-      TreeNode(t.parent, t.value, t.degree, t.mark)
-    {
-      if (t.child) {
-        child = grow_forest(t.child);
-      }
-    };
+	/* Build a copy of the old_top and return it */
+  static TreeNode *grow_forest(const TreeNode *old_top) {
+    assert(old_top);
+    /* Represent a new top, and iterators for the old and new tops */
+    TreeNode *new_top, *t, *n;
+    /* Explicitly copy the old top, and start here */
+    t = new_top = new TreeNode(*old_top);
+    /* For every other node known to the old top */
+    for (n = old_top->right; n != old_top; n = n->right) {
+      t->right = new TreeNode(*n);
+      t->right->left = t;
+      t = t->right;
+    }
+    t->right = new_top;
+    new_top->left = t;
+    return new_top;
+  }
 
-    /* Destructor tears everything down */
-		~TreeNode() {
-			burn_forest(child);
-		}
-
-		/* Build a copy of the old_top and return it */
-		TreeNode *grow_forest(const TreeNode *old_top) const {
-      assert(old_top);
-      /* Represent a new top, and iterators for the old and new tops */
-      TreeNode *new_top, *t, *n;
-      /* Explicitly copy the old top, and start here */
-      t = new_top = new TreeNode(*old_top);
-      /* For every other node known to the old top */
-      for (n = old_top->right; n != old_top; n = n->right) {
-        t->right = new TreeNode(*n);
-        t->right->left = t;
-        t = t->right;
-      }
-      t->right = new_top;
-      new_top->left = t;
-      return new_top;
-		}
-
-    /* After recursion, t is burnt and buried */
-		void burn_forest(TreeNode& *t) {
-			if (t) {
-				// Detach this node from the chain
-				// Isolate the tree on its flank
-				t->left->right = NULL;
-				// Recur around the structure
-				// Start burning to the right
-				burn_forest(t->right);
-        // FIXME should be ->right or is unnecessary?
-				t->left = NULL;
-				// Free memory on post-order
-				delete t; t = NULL;
-        // Note: ~TreeNode() { burn_forest(child); }
-			}
-		}
-	};
+  /* After recursion, t is burnt and buried */
+  static void burn_forest(TreeNode *&t) {
+    if (t) {
+      // Detach this node from the chain
+      // Isolate the tree on its flank
+      t->left->right = NULL;
+      // Recur around the structure
+      // Start burning to the right
+      burn_forest(t->right);
+      // FIXME should be ->right or is unnecessary?
+      t->left = NULL;
+      // Free memory on post-order
+      delete t; t = NULL;
+      // Note: ~TreeNode() { burn_forest(child); }
+    }
+  }
 
 	/* Feap representation */
-	TreeNode *m_top;
 	size_type m_size;
+	TreeNode *m_top;
 
 public:
 	/* Make an empty (head-less) Feap */
@@ -97,7 +86,7 @@ public:
 
 	/* Burn every node */
 	virtual ~Feap() {
-		burn_forest(m_top);
+    burn_forest(m_top);
 	}
 
 	/* Copy circular structure of TreeNodes */
@@ -135,7 +124,7 @@ public:
   /* Add an entry to this Feap */
 	void insert(const T& t) {
     // TODO should do singleton merge instead?
-    Treenode n = new TreeNode(NULL, t);
+    TreeNode *n = new TreeNode(NULL, t);
     assert(n); ++m_size;
     /* Maintain the heap property */
 		m_top = plant(m_top, n);
@@ -206,7 +195,7 @@ private:
    * We just ensure a's right is not b's left.
    * (This will snip a node in placing them adjacent.)
    */
-	inline TreeNode *plant(TreeNode *a, TreeNode *b) {
+	static inline TreeNode *plant(TreeNode *a, TreeNode *b) {
     /* Edge case, TODO can optimize? */
     if (!a || !b) {
       return (a) ? a : b;
@@ -224,7 +213,7 @@ private:
 	}
 
   /* Consolidates degrees of all trees not t in t's cycle */
-	inline void germinate(TreeNode& *t) {
+	inline void germinate(TreeNode *&) {
 	  /* FIXME wait... WTF does this function do?
 		// t references a dying tree that needs to be replaced
 		if (t) {
@@ -265,5 +254,21 @@ private:
   */
 
 };
+
+/* Copy constructor dives into children */
+template <typename T>
+Feap<T>::TreeNode::TreeNode(const TreeNode& t) :
+  TreeNode(t.parent, t.value, t.degree, t.mark)
+{
+  if (t.child) {
+    child = grow_forest(t.child);
+  }
+};
+
+/* Destructor tears everything down */
+template <typename T>
+Feap<T>::TreeNode::~TreeNode() {
+  burn_forest(child);
+}
 
 #endif /* FEAP_H_ */
