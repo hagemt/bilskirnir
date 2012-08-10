@@ -2,6 +2,7 @@
 *.slo
 *.lo
 *.o
+*/bin/*
 
 # Compiled Dynamic libraries
 *.so
@@ -10,3 +11,9 @@
 *.lai
 *.la
 *.a
+
+# Project files
+.classpath
+.cproject
+.project
+*/.settings/*
