@@ -11,4 +11,7 @@ debug_feap:
 release_feap:
 	$(CC) $(CFLAGS) $(DFLAGS) Feap.cpp -o release_feap
 
-.PHONY: all
+clean:
+	rm -f debug_feap release_feap
+
+.PHONY: all clean
