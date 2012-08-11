@@ -17,6 +17,13 @@
 .cproject
 .project
 */.settings/*
+Graph/Debug/
+Graph/Release/
+
+# Data
+ml/mlclass-ex3/ex3data1.mat
+ml/mlclass-ex4/ex4data1.mat
+ml/mlclass-ex7/ex7faces.mat
 
 # Archives
 *.zip
