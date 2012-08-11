@@ -17,3 +17,6 @@
 .cproject
 .project
 */.settings/*
+
+# Archives
+*.zip
