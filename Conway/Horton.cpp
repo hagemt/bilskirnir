@@ -18,45 +18,47 @@
 
 #define LIMIT (0x100L)
 typedef unsigned long Word;
-#define WORD_SIZE (sizeof(Word) << 3)
+#define WORD_BITS (sizeof(Word) << 3)
 typedef std::vector<std::vector<bool> > World;
-#define WORLD_SIZE WORD_SIZE
+#define WORLD_SIZE WORD_BITS
 
 std::ostream& operator<<(std::ostream& out, const World& w) {
-	for (World::size_type i = 0; i < w.size(); ++i) {
-		for (World::size_type j = 0; j < w[i].size(); ++j) {
+  for (World::size_type i = 0; i < w.size(); ++i) {
+    for (World::size_type j = 0; j < w[i].size(); ++j) {
       out << ((w[i][j]) ? 'X' : ' ');
     }
-		out << std::endl;
-	}
-	return out;
+    out << std::endl;
+  }
+  return out;
 }
 
 World& operator>>(std::istream& in, World& w) {
-	char buffer[WORLD_SIZE];
+  char buffer[WORLD_SIZE];
   std::vector<bool> row;
   row.reserve(WORLD_SIZE);
   /* Each character of the file represents a cell */
-	while (in.getline(buffer, WORLD_SIZE)) {
-		for (char *c = buffer; *c; ++c) {
+  while (in.getline(buffer, WORLD_SIZE)) {
+    for (char *c = buffer; *c; ++c) {
       /* Skip comment lines */
-			if (*c == '!') { break; }
-			row.push_back((*c == 'O'));
-		}
-		if (!row.empty()) {
+      if (*c == '!') {
+        break;
+      }
+      row.push_back((*c == 'O'));
+    }
+    if (!row.empty()) {
       w.push_back(row);
     }
     row.clear();
-	}
-	return w;
+  }
+  return w;
 }
 
 int main(int argc, char** argv) {
-	World world;
+  World world;
   std::ifstream input;
 
-	while (--argc) {
-		input.open(argv[argc]);
+  while (--argc) {
+    input.open(argv[argc]);
     if (input) {
       std::cout << (input >> world) << std::endl;
       input.close();
@@ -64,21 +66,21 @@ int main(int argc, char** argv) {
       std::cerr << "[ERROR] cannot open: " << argv[argc] << std::endl;
     }
     world.clear();
-	}
+  }
 
   #if __cplusplus > 199711L
   std::unordered_set<Word> history;
   #endif /* C++11 */
 
   std::cout << "Testing first " << LIMIT << " strings..." << std::endl;
-	for (Word w = 0; w < LIMIT; ++w) {
-    std::bitset<WORD_SIZE> line(w);
-    std::cout << std::string(WORD_SIZE + 8, '-') << std::endl;
+  for (Word w = 0; w < LIMIT; ++w) {
+    std::bitset<WORD_BITS> line(w);
+    std::cout << std::string(WORD_BITS + 8, '-') << std::endl;
     std::cout << "BEGIN:\t" << line.to_string() << std::endl;;
-		for (size_t i = 1; line.any() ^ line.all(); ++i) {
-			for (size_t j = 1; j + 1 < line.size(); ++j) {
-				line[j] = (line[j - 1] ^ line[j + 1]);
-			}
+    for (size_t i = 1; line.any() ^ line.all(); ++i) {
+      for (size_t j = 1; j + 1 < line.size(); ++j) {
+        line[j] = (line[j - 1] ^ line[j + 1]);
+      }
       std::cout << "\rTEST:\t" << line.flip().to_string();
       #if __cplusplus > 199711L
       if (!history.insert(line.to_ulong()).second) {
@@ -86,13 +88,15 @@ int main(int argc, char** argv) {
         history.clear();
         break;
       }
-      #else
-      if (i > LIMIT) { break; }
+      #else /* not C++11 */
+      if (i > LIMIT) {
+        break;
+      }
       #endif /* C++11 */
-		}
+    }
     std::cout << "\rFINAL:\t" << line.to_string() << std::endl;
-	}
-  std::cout << std::string(WORD_SIZE + 8, '-') << std::endl;
+  }
+  std::cout << std::string(WORD_BITS + 8, '-') << std::endl;
   std::cout << "Finished performing " << LIMIT << " tests." << std::endl;
-	return 0;
+  return 0;
 }
