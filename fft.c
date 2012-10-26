@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #define N (1 << 3)
-#define MAX_SIZE (1 << 30)
 #define NEG_TWO_PI_I (-2 * M_PI * _Complex_I)
 
 typedef double complex fft_t;
@@ -53,15 +52,13 @@ fft(fft_t * __restrict__ x, size_t n, size_t s, fft_t * __restrict__ result)
 }
 
 inline void
-fft_try(fft_t * __restrict__ a, size_t alen, fft_t * __restrict__ result)
+fft_try(fft_t * __restrict__ a, size_t len, fft_t * __restrict__ result)
 {
 	register size_t i;
-	/* check all for power of two */
-	for (i = 1; i < MAX_SIZE; i <<= 1) {
-		if (i == alen) {
-			fft(a, alen, 1, result);
-			return;
-		}
+	/* check that length is a power of two */
+	if ((0 < len) && ((len & (~len + 1)) == len)) {
+		fft(a, len, 1, result);
+		return;
 	}
 	#ifndef NDEBUG
 	fprintf(stderr, "[error] '%lu' (not a power of two)\n", (long unsigned)(alen));

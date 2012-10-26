@@ -25,6 +25,9 @@ maxof(size_t argc, ...)
 
 	/* Start the VA_LIST */
 	va_start(args, argc);
+	/* Note: argc is the "last known" argument
+	 * It does not signify a "count!"
+	 */
 
 	max = va_arg(args, type_t);
 	for (i = 1; i < argc; ++i) {
