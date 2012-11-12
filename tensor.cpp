@@ -5,24 +5,38 @@
  *      Author: Tor E Hagemann <hagemt@rpi.edu>
  */
 
+#include <complex>
 #include <iomanip>
 #include <iostream>
 
+template<typename T> std::ostream &
+print(const T& t, size_t width = 0)
+{
+  if (width > 0) {
+    std::cout << std::setw(width);
+  }
+  return std::cout << std::right << t;
+}
+
 #include "tensor.h"
 
-int main(int argc, char * argv[]) {
-  Tensor<size_t, 2> t;
-  for (size_t x = 0; x < DEFAULT_SIZE; ++x) {
-    std::cout << "{" << std::endl;
-    for (size_t y = 0; y < DEFAULT_SIZE; ++y) {
-      std::cout << "[";
-      for (size_t z = 0; z < DEFAULT_SIZE; ++z) {
-        std::cout << std::setw(3) << std::right << t[x][y][z];
+#define I std::complex<double>(0, 1)
+#define N 7
+
+int
+main(void)
+{
+  Tensor<std::complex<double>, 2> t(N, I);
+  for (size_t x = 0; x < N; ++x) {
+    print("rows {") << std::endl;
+    for (size_t y = 0; y < N; ++y) {
+      print("[", N);
+      for (size_t z = 0; z < N; ++z) {
+        print(t[x][y][z], N);
       }
-      std::cout << " ]" << std::endl;
+      print("]", N) << std::endl;
     }
-    std::cout << " }";
+    print("}") << std::endl;
   }
-  std::cout << std::endl;
   return 0;
 }
