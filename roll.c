@@ -1,71 +1,62 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-struct token { char* begin; struct token* next; } first;
-struct die { int count, sides; } roll;
-
-int main(int argc, char** argv) {
-	int *fill; char *c; struct token *last;
+int
+main(argc, argv)
+	int argc;
+	char *argv[];
+{
+	/* Really limit the stack */
+	register char *c;
+	int count, sides, *ptr;
+	struct token {
+		char *data;
+		struct token *next;
+	} first, *last;
+	/* Check arguments */
 	if (argc == 1) {
-		fprintf(stderr, "USAGE: %s XdY ...\n", argv[0]);
+		fprintf(stderr, "USAGE: %s XdY ...\n", *argv);
 	}
-	srand(time(NULL));
+	srand((unsigned int) (time(NULL)));
+	/* Tokenize each argument, forward LIFO */
 	while (--argc) {
-		first.begin = argv[argc];
+		first.data = argv[argc];
 		first.next = NULL;
 		last = &first;
+		/* Each argument needs to be masked */
 		for (c = argv[argc]; *c; ++c) {
-			if (*c == 'd' || *c == 'D') {
+			/* Mark token on numeric characters */
+			if (!isdigit(*c)) {
 				*c = '\0';
-				last = last->next = malloc(sizeof(first));
-				last->begin = c + 1;
+				last->next = malloc(sizeof(struct token));
+				last = last->next;
+				last->data = c + sizeof(char);
 				last->next = NULL;
 			}
 		}
-/*
-		if (!first.next) {
-			if ((roll.count = atoi(first.begin)) > 0) {
-				printf("Rolling %i stat lines...\n", roll.count);
-				fill = malloc(sizeof(int) * 4);
-				while (roll.count) {
-					printf("TODO");
-					printf(", %i left...\n", --roll.count);
-				}
-				free(fill);
-			} else {
-				printf("Skipping invalid argument: %s\n", first.begin);
-			}
-			continue;
-		}
-*/
-		fill = &(roll.count);
+		ptr = &count;
+		/* Deduce amount and sided-ness of die/dice */
 		for (last = &first; last; last = last->next) {
-			if (!fill || (*fill = atoi(last->begin)) <= 0) {
-				if (*(last->begin)) {
-					printf("Skipping invalid argument: %s\n", last->begin);
-				}
-			} else if (fill == &(roll.count)) {
-				fill = &(roll.sides);
-			} else if (fill == &(roll.sides)) {
-				printf("Rolling %id%i:", roll.count, roll.sides);
-				while (roll.count--) {
-					printf(" %i", rand() % roll.sides + 1);
+			/* In the most eccentric way possible */
+			if ((*ptr = atoi(last->data)) <= 0) {
+				continue;
+			} else if (ptr == &count) {
+				ptr = &sides;
+			} else if (ptr == &sides) {
+				printf("Rolling %id%i:", count, sides);
+				while (count--) {
+					printf(" %i", (rand() % sides) + 1);
 				}
 				printf("\n");
-				fill = NULL;
+				ptr = &count;
 			}
 		}
-/*
-		for (last = &first; last; last = last->next) {
-			if (*(last->begin)) {
-				printf("%s\n", last->begin);
-			}
-		}
-*/
-		for (last = first.next; last;) {
+		/* The most confusing cleanup ever */
+		while ((last = first.next)) {
 			first.next = last->next;
 			free(last);
-			last = first.next;
 		}
 	}
 	return(EXIT_SUCCESS);
