@@ -1,0 +1,12 @@
+%h1 Great Buzzlines from History
+%table
+	- buzzlines.each do |bl|
+		%tr
+			%td{ :width => "5%" }= bl.id
+			%td= bl.who
+			%td= bl.what
+			%td= bl.when
+			%td= bl.where
+			%td= bl.why
+		%tr{ :colspan => "6" }
+			%td= "Submitted via #{bl.how} by #{bl.email} on #{bl.date}"

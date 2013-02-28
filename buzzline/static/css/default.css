@@ -1,0 +1,64 @@
+/*** Tags ***/
+
+body {
+	background-color: #cc0000;
+	color: #ffffff;
+	margin: 10px;
+	padding: 10px;
+}
+
+div {
+	margin: auto;
+	text-align: center;
+}
+
+/** Anchors **/
+
+a:link {
+	background-color: inherit;
+	color: #cccccc;
+}
+
+a:visited {
+	background-color: inherit;
+	color: #999999;
+}
+
+a:hover {
+	background-color: inherit;
+	color: #ffffff;
+}
+
+
+/** Headers **/
+
+h1, h2, h3, h4, h5 {
+	font-weight: bold;
+	margin: 5px;
+	padding: 5px;
+}
+
+h1 {
+	font-size: 5em;
+}
+
+h2 {
+	font-size: 4em;
+}
+
+h3 {
+	font-size: 3em;
+}
+
+h4 {
+	font-size: 2em;
+}
+
+h5 {
+	font-size: 1em;
+}
+
+/*** IDs ***/
+
+/*** Classes ***/
+
